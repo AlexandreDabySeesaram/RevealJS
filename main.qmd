@@ -1,0 +1,146 @@
+---
+title: "Hybridising standard reduced-order modelling methods with interpretable sparse neural networks for real-time patient specific lung simulations"
+subtitle: "VPH 2024 - Stuttgart"
+format: 
+  revealjs:
+    smaller: true
+
+    html-math-method: mathjax
+    author: 
+        - name: Alexandre Daby-Seesaram
+          email: alexandre.daby-seesaram@polytechnique.edu
+          orcid: 0000-0002-2374-0971
+          affiliations:
+            - ref: lms
+        - name: Katerina Skardova
+          orcid: 0000-0002-9870-3438
+        - name: Martin Genet
+          orcid: 0000-0003-2204-201X
+    affiliations:
+    - id: lms
+      name: LMS, École Polytechnique, France
+    slide-number: c/t
+    show-slide-number: all
+    code-fold: true
+    transition: fade
+    theme: ./LMS_Slides
+    logo: Logo.svg
+    date: 09/04/2024
+    date-format: long
+    title-slide-attributes: 
+        data-background-image: "HiDeNN_TD.png"
+jupyter: python3
+progress: true
+touch: true
+controls: true
+loadIcons: true
+# embed-resources: true
+# slideNumber: true
+bibliography: biblio.bib
+
+---
+
+
+
+# I) Part 1
+ * Motivations
+    * shape function
+    * trainable mesh
+
+## The finite element method
+
+The finite element method relies on interpolating the field of interest
+$$u\left(x\right) = \sum\limits_{i=0}^{N} N_i\left(x\right) \overline{u}_i$$ 
+
+## Some lit. review
+### About ROM
+The PGD [@chinesta_short_2011] is an a priori Reduced-order model techniques that consists in build the reduced-order basis on the fly.
+
+* No off-line computations
+* On the fly mode generation adapted to the specifics of the problem [@DabyHybrid]
+
+ $$u\left(x, \mu\right) = \sum\limits_{i=0}^{m}\overline{u}_i\left(x\right)\lambda_i\left(\mu\right)$$
+
+
+## Mesh adaptation
+
+* Item
+    * Sub-item
+* Item
+
+# II) Part 2
+
+## NeuROM
+
+The convergence is investigated in @conv
+
+::: columns
+
+::: {.column  width="50%"}
+```{python}
+#| label: conv
+#| fig-cap: "Convergence plot NeuROM"
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.rcParams['svg.fonttype'] = 'none'
+from IPython.display import set_matplotlib_formats
+set_matplotlib_formats('svg')
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Helvetica"
+})
+import matplotlib
+matplotlib.rcParams["text.usetex"] = True
+matplotlib.rcParams["font.family"] = "serif"
+from matplotlib.ticker import MaxNLocator
+
+matplotlib.rcParams["font.size"] = "28"
+df = pd.read_csv('Figures/Test_CSV.csv')
+
+Modes_flag = df['N_modes']
+error = df['Loss']
+sign = 'Negative'
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+g1 = ax.plot(Modes_flag, color='#247ab5ff')
+ax.tick_params(axis='y', colors='#247ab5ff')
+plt.ylabel(r'$m$',color='#247ab5ff')
+ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+plt.xlabel(r'Epochs')
+ax2 = ax.twinx()
+y_values = [2e-3, 2.3e-3]
+x_values = [0, 1200, 2400]
+ax2.set_xticks(x_values)
+
+labels = ['-2e-3', '-2.3e-3']
+match sign:
+    case "Positive":
+        g2 = ax2.semilogy(error, color='#d95319ff')
+        ax2.set_ylabel(r'$ + J\left(\underline{u}\left(\underline{x}\right)\right)$',color='#d95319ff')
+
+    case "Negative":
+        ax2.invert_yaxis()
+        g2 = ax2.semilogy(error, color='#d95319ff')
+        ax2.set_ylabel(r'$ J\left(\underline{u}\left(\underline{x}\right)\right)$',color='#d95319ff')
+
+# g2 = ax2.semilogy(-torch.tensor(error),label = r'$ - J\left(\underline{u}\left(\underline{x}\right)\right)$', color='#d95319ff')
+ax2.tick_params(axis='y', colors='#d95319ff')
+ax2.set_yticks(y_values)
+ax2.set_yticklabels(labels)
+plt.minorticks_off()
+
+plt.show()
+```
+:::
+
+::: {.column  width="50%"}
+* On the fly mode addition
+* Multi-level (2) training
+:::
+
+:::
+
+## References
